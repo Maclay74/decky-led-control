@@ -12,16 +12,14 @@ import {
   staticClasses,
 } from "decky-frontend-lib";
 import { VFC } from "react";
-import { FaShip } from "react-icons/fa";
+import { FaLightbulb } from "react-icons/fa";
 
-import logo from "../assets/logo.png";
+interface SetColorCommandArgs {
+  color: [number, number, number]
+};
 
-// interface AddMethodArgs {
-//   left: number;
-//   right: number;
-// }
 
-const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
+const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
   // const [result, setResult] = useState<number | undefined>();
 
   // const onClick = async () => {
@@ -37,42 +35,16 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
   //   }
   // };
 
+  const setColor = async(color: [number, number, number]) =>  {
+    await serverAPI.callPluginMethod<SetColorCommandArgs, string>("set_color", { color });
+  }
+
   return (
     <PanelSection title="Panel Section">
       <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={(e) =>
-            showContextMenu(
-              <Menu label="Menu" cancelText="CAAAANCEL" onCancel={() => {}}>
-                <MenuItem onSelected={() => {}}>Item #1</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #2</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #3</MenuItem>
-              </Menu>,
-              e.currentTarget ?? window
-            )
-          }
-        >
-          Server says yolo
-        </ButtonItem>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <img src={logo} />
-        </div>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Router.CloseSideMenus();
-            Router.Navigate("/decky-plugin-test");
-          }}
-        >
-          Router
-        </ButtonItem>
+        <ButtonItem onClick={() => setColor([255, 0, 0])}>Set Red</ButtonItem>
+        <ButtonItem onClick={() => setColor([0, 255, 0])}>Set Green</ButtonItem>
+        <ButtonItem onClick={() => setColor([255, 255, 0])}>Set Yello</ButtonItem>
       </PanelSectionRow>
     </PanelSection>
   );
@@ -95,9 +67,9 @@ export default definePlugin((serverApi: ServerAPI) => {
   });
 
   return {
-    title: <div className={staticClasses.Title}>Example Plugin</div>,
+    title: <div className={staticClasses.Title}>LED Control</div>,
     content: <Content serverAPI={serverApi} />,
-    icon: <FaShip />,
+    icon: <FaLightbulb />,
     onDismount() {
       serverApi.routerHook.removeRoute("/decky-plugin-test");
     },

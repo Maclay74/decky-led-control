@@ -5,8 +5,9 @@ all: hello
 
 # This rule tells make how to build hello from hello.cpp
 hello:
-	mkdir -p ./out
-	gcc -o ./out/hello ./src/main.c 
+	mkdir -p ../bin
+	docker run --rm -v `pwd`:/backend decky-led-control
+	cp ./target/release/decky-led-control ../bin/backend
 
 # This rule tells make to delete hello and hello.o
 .PHONY: clean 

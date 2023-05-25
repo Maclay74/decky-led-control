@@ -1,0 +1,18 @@
+[package]
+name = "decky-led-control"
+version = "0.1.0"
+edition = "2021"
+authors = ["Maclay <mishakozlov74@gmail.com>"]
+description = "Backend for Decky LED Control"
+license = "GPL-3.0-only"
+repository = "https://github.com/NGnius/PowerTools"
+keywords = ["utility", "led", "root", "decky"]
+readme = "../README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.144"
+memmap = "0.7.0"
+rmesg = { version = "1.0.20", default-features = false, features = ["sync"] }
+rouille = "3.6.2"

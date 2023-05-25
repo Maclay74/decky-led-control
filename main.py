@@ -1,41 +1,63 @@
-import os
-
-# The decky plugin module is located at decky-loader/plugin
-# For easy intellisense checkout the decky-loader code one directory up
-# or add the `decky-loader/plugin` path to `python.analysis.extraPaths` in `.vscode/settings.json`
+import os, sys
+import pathlib
+import subprocess
+import asyncio
 import decky_plugin
 
+sys.path.append(os.path.dirname(__file__))
+
+from backend import Backend
+
+HOST = '127.0.0.1'
+PORT = 32723
+HOME_DIR = str(pathlib.Path(os.getcwd()).parent.parent.resolve())
+PARENT_DIR = str(pathlib.Path(__file__).parent.resolve())
 
 class Plugin:
-    # A normal method. It can be called from JavaScript using call_plugin_function("method_1", argument1, argument2)
-    async def add(self, left, right):
-        return left + right
+    
+    backend_proc = None
+    backend: Backend = None
 
-    # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
-        decky_plugin.logger.info("Hello World!")
 
-    # Function called first during the unload process, utilize this to handle your plugin being removed
+        try:
+            env_proc = dict(os.environ)
+            if "LD_LIBRARY_PATH" in env_proc:
+                env_proc["LD_LIBRARY_PATH"] += ":" + PARENT_DIR + "/bin"
+            else:
+                env_proc["LD_LIBRARY_PATH"] = ":" + PARENT_DIR + "/bin"
+
+            # command = ["sudo", "-S", PARENT_DIR + "/bin/backend", HOST, str(PORT)]
+            # backend_proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # backend_proc.communicate("gamer".encode())
+
+        except Exception as e: 
+            decky_plugin.logger.info(f"Error {e}")
+            return
+        
+        await asyncio.sleep(1)
+        self.backend = Backend(HOST, PORT)
+
+        # while True:
+        #     await asyncio.sleep(1)
+
     async def _unload(self):
-        decky_plugin.logger.info("Goodbye World!")
-        pass
+        if self.backend_proc is not None:
+            self.backend_proc.terminate()
+            try:
+                self.backend_proc.wait(timeout=5) # 5 seconds timeout
+            except subprocess.TimeoutExpired:
+                self.backend_proc.kill()
+            self.backend_proc = None
+
+    async def get_style(self):
+        response = self.backend.get_color()
+        return response
+    
+    async def set_color(self, color):
+        response = self.backend.set_color(color)
+        return response
 
     # Migrations that should be performed before entering `_main()`.
     async def _migration(self):
-        decky_plugin.logger.info("Migrating")
-        # Here's a migration example for logs:
-        # - `~/.config/decky-template/template.log` will be migrated to `decky_plugin.DECKY_PLUGIN_LOG_DIR/template.log`
-        decky_plugin.migrate_logs(os.path.join(decky_plugin.DECKY_USER_HOME,
-                                               ".config", "decky-template", "template.log"))
-        # Here's a migration example for settings:
-        # - `~/homebrew/settings/template.json` is migrated to `decky_plugin.DECKY_PLUGIN_SETTINGS_DIR/template.json`
-        # - `~/.config/decky-template/` all files and directories under this root are migrated to `decky_plugin.DECKY_PLUGIN_SETTINGS_DIR/`
-        decky_plugin.migrate_settings(
-            os.path.join(decky_plugin.DECKY_HOME, "settings", "template.json"),
-            os.path.join(decky_plugin.DECKY_USER_HOME, ".config", "decky-template"))
-        # Here's a migration example for runtime data:
-        # - `~/homebrew/template/` all files and directories under this root are migrated to `decky_plugin.DECKY_PLUGIN_RUNTIME_DIR/`
-        # - `~/.local/share/decky-template/` all files and directories under this root are migrated to `decky_plugin.DECKY_PLUGIN_RUNTIME_DIR/`
-        decky_plugin.migrate_runtime(
-            os.path.join(decky_plugin.DECKY_HOME, "template"),
-            os.path.join(decky_plugin.DECKY_USER_HOME, ".local", "share", "decky-template"))
+        pass

@@ -34,6 +34,9 @@ Thumbs.db
 
 # Ignore built ts files
 dist/
+backend/cargo/**
+backend/target/**
+bin
 
 __pycache__/
 
