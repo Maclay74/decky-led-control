@@ -57,6 +57,10 @@ class Plugin:
     async def set_color(self, color):
         response = self.backend.set_color(color)
         return response
+    
+    async def turn_off(self):
+        response = self.backend.turn_off()
+        return response
 
     # Migrations that should be performed before entering `_main()`.
     async def _migration(self):

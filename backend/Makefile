@@ -7,7 +7,8 @@ all: hello
 hello:
 	mkdir -p ../bin
 	docker run --rm -v `pwd`:/backend decky-led-control
-	cp ./target/release/decky-led-control ../bin/backend
+	cp ./bin/backend ../bin/backend
+	cp ./ectool/ectool ../bin/ectool
 
 # This rule tells make to delete hello and hello.o
 .PHONY: clean 

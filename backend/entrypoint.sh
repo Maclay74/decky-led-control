@@ -3,10 +3,18 @@ set -e
 
 echo "Container's IP address: `awk 'END{print $1}' /etc/hosts`"
 
-cd backend
+# export DOTNET_ROOT=/usr/share/dotnet/
+# export PATH=$PATH:$DOTNET_ROOT
 
-export CARGO_HOME=/backend/cargo
-export RUSTUP_TOOLCHAIN=stable
+# Copy the project file(s) to the container
+cd /backend
 
-cargo fetch --locked --target "x86_64-unknown-linux-gnu"
-cargo build --frozen --release --all-features
+# Build the application
+dotnet restore --runtime linux-x64
+dotnet build
+dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true -o /backend/bin
+
+# Build EC tool
+cd ./ectool
+make clean
+make

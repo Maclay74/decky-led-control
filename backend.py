@@ -11,6 +11,9 @@ class Backend:
     def set_color(self, color):
         command = f"set_color {color[0]} {color[1]} {color[2]}"
         return self.send_command(command)  
+    
+    def set_color(self):
+        return self.send_command("turn_off")  
 
     def send_command(self, command) -> str:
         try:
